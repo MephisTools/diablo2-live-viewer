@@ -1,11 +1,41 @@
-/* globals customElements */
+/* globals customElements, WebSocket */
 
 import { LitElement, html } from '@polymer/lit-element/'
 import './diablo2-map.js'
+import './packets-live-viewer'
+import page from 'page'
 
 class Diablo2LiveViewer extends LitElement {
+  constructor () {
+    super()
+    this.ws = new WebSocket('ws://localhost:8080')
+    this.page = 'index'
+  }
+
+  static get properties () {
+    return { page: { type: String }, ws: { type: Object } }
+  }
+
+  firstUpdated () {
+    page('/', () => { this.page = 'index' })
+    page('/map', () => { this.page = 'map' })
+    page('/packets', () => { this.page = 'packets' })
+    page()
+  }
+
   render () {
-    return html`<diablo2-map></diablo2-map>`
+    switch (this.page) {
+      case 'index':
+        return html`
+        <a href="/map">Map</a>
+        <br />
+        <a href="/packets">Packets</a>
+        `
+      case 'map':
+        return html`<diablo2-map .ws=${this.ws}></diablo2-map>`
+      case 'packets':
+        return html`<packets-live-viewer .ws=${this.ws}></packets-live-viewer>`
+    }
   }
 }
 

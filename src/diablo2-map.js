@@ -1,4 +1,4 @@
-/* globals customElements, WebSocket */
+/* globals customElements */
 
 import { LitElement, html } from '@polymer/lit-element/'
 import L from 'leaflet'
@@ -25,9 +25,15 @@ const xy = function (x, y) {
 }
 
 class Diablo2Map extends LitElement {
+  static get properties () {
+    return {
+      ws: { type: Object }
+    }
+  }
+
   firstUpdated () {
-    this.displayMap()
     this.entities = {}
+    this.displayMap()
   }
 
   displayMap () {
@@ -42,9 +48,7 @@ class Diablo2Map extends LitElement {
 
     this.map.setView(xy(120, 70), 1)
 
-    const ws = new WebSocket('ws://localhost:8080')
-
-    ws.onmessage = (message) => {
+    this.ws.addEventListener('message', message => {
       const { protocol, name, params } = JSON.parse(message.data)
       console.log(protocol, name, JSON.stringify(params))
 
@@ -78,7 +82,7 @@ class Diablo2Map extends LitElement {
           this.entities[unitId].setLatLng(xy(x, y))
         }
       }
-    }
+    })
   }
 
   render () {
