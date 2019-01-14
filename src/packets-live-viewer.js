@@ -2,6 +2,10 @@
 
 import { LitElement, html } from '@polymer/lit-element/'
 
+import datatablesCss from 'datatables.net-dt/css/jquery.dataTables.min.css'
+import $ from 'jquery'
+import 'datatables.net'
+
 class PacketsLiveViewer extends LitElement {
   static get properties () {
     return {
@@ -9,21 +13,46 @@ class PacketsLiveViewer extends LitElement {
     }
   }
 
-  firstUpdated () {
-    this.entities = {}
-    this.displayPacketsTable()
+  constructor () {
+    super()
+    this.fake = false
   }
 
-  displayPacketsTable () {
-    console.log(this.ws)
-    this.ws.addEventListener('message', message => {
-      const { protocol, name, params } = JSON.parse(message.data)
-      console.log(protocol, name, JSON.stringify(params))
+  firstUpdated () {
+    this.displayPacketsTable()
+    this.packetsTable = $(this.shadowRoot.querySelector('#myTable')).DataTable({
+      'order': [[ 0, 'desc' ]]
     })
   }
 
+  displayPacketsTable () {
+    this.ws.addEventListener('message', message => {
+      const { protocol, name, params } = JSON.parse(message.data)
+      this.packetsTable.row.add([new Date().toLocaleTimeString(), protocol, name, JSON.stringify(params)]).draw()
+      console.log(protocol, name, JSON.stringify(params))
+    })
+    if (this.fake) {
+      setInterval(() => {
+        this.packetsTable.row.add([new Date().toLocaleTimeString(), 'lol1', 'lol2', 'lol3']).draw()
+      }, 1000)
+    }
+  }
+
   render () {
-    return html`I view`
+    return html`<style>${datatablesCss}</style>
+  <table id="myTable">
+      <thead>
+        <tr>
+            <th>Time</th>
+            <th>Protocol</th>
+            <th>Name</th>
+            <th>Params</th>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+  `
   }
 }
 

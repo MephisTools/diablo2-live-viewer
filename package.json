@@ -13,6 +13,8 @@
     "@polymer/lit-element": "^0.6.4",
     "@webcomponents/webcomponentsjs": "^2.2.1",
     "css-loader": "^2.1.0",
+    "datatables.net": "^1.10.19",
+    "datatables.net-dt": "^1.10.19",
     "express": "^4.16.3",
     "file-loader": "^3.0.1",
     "leaflet": "^1.4.0",
