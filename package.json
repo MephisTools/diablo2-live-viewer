@@ -41,6 +41,7 @@
     "karma-sourcemap-loader": "^0.3.7",
     "karma-webpack": "^3.0.5",
     "mocha": "^5.2.0",
+    "standard": "^12.0.1",
     "webpack": "^4.14.0",
     "webpack-cli": "^3.0.8",
     "webpack-dev-server": "^3.1.4",
@@ -48,9 +49,10 @@
   },
   "scripts": {
     "build": "webpack --env production",
-    "lint": "eslint ./src/*.js",
+    "lint": "standard",
+    "fix": "standard --fix",
     "postinstall": "npm run build",
     "start": "webpack-dev-server --env development",
-    "test": "./node_modules/karma/bin/karma start"
+    "test": "./node_modules/karma/bin/karma start && npm run lint"
   }
 }

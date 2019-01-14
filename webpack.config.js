@@ -1,25 +1,25 @@
-'use strict';
+'use strict'
 
-const { resolve, join } = require('path');
-const merge = require('webpack-merge');
-const CopyWebpackPlugin = require('copy-webpack-plugin');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const CleanWebpackPlugin = require('clean-webpack-plugin');
+const { resolve, join } = require('path')
+const merge = require('webpack-merge')
+const CopyWebpackPlugin = require('copy-webpack-plugin')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
+const CleanWebpackPlugin = require('clean-webpack-plugin')
 
 const ENV = process.argv.find(arg => arg.includes('production'))
   ? 'production'
-  : 'development';
-const OUTPUT_PATH = ENV === 'production' ? resolve('dist') : resolve('src');
-const INDEX_TEMPLATE = resolve('./src/index.html');
+  : 'development'
+const OUTPUT_PATH = ENV === 'production' ? resolve('dist') : resolve('src')
+const INDEX_TEMPLATE = resolve('./src/index.html')
 
-const webcomponentsjs = './node_modules/@webcomponents/webcomponentsjs';
+const webcomponentsjs = './node_modules/@webcomponents/webcomponentsjs'
 
 const assets = [
   {
     from: resolve('./src/assets'),
     to: resolve('dist/assets/')
   }
-];
+]
 
 const polyfills = [
   {
@@ -45,11 +45,11 @@ const polyfills = [
     from: resolve('./node_modules/promise-polyfill/dist/polyfill.min.js'),
     to: join(OUTPUT_PATH, 'vendor')
   }
-];
+]
 
 const commonConfig = merge([
   {
-    entry: './src/lit-app.js',
+    entry: './src/diablo2-live-viewer.js',
     output: {
       path: OUTPUT_PATH,
       filename: '[name].[chunkhash:8].js'
@@ -63,7 +63,7 @@ const commonConfig = merge([
               loader: 'babel-loader',
               options: {
                 babelrc: true,
-                extends: join(__dirname + '/.babelrc'),
+                extends: join(__dirname, '/.babelrc'),
                 cacheDirectory: true,
                 envName: ENV
               }
@@ -86,7 +86,7 @@ const commonConfig = merge([
       ]
     }
   }
-]);
+])
 
 const developmentConfig = merge([
   {
@@ -107,7 +107,7 @@ const developmentConfig = merge([
       host: 'localhost'
     }
   }
-]);
+])
 
 const productionConfig = merge([
   {
@@ -126,12 +126,12 @@ const productionConfig = merge([
       })
     ]
   }
-]);
+])
 
 module.exports = mode => {
   if (mode === 'production') {
-    return merge(commonConfig, productionConfig, { mode });
+    return merge(commonConfig, productionConfig, { mode })
   }
 
-  return merge(commonConfig, developmentConfig, { mode });
-};
+  return merge(commonConfig, developmentConfig, { mode })
+}

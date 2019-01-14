@@ -1,7 +1,6 @@
-const { join } = require('path');
+const path = require('path')
 
-
-module.exports = function(config) {
+module.exports = function (config) {
   config.set({
     basePath: '',
     singleRun: true,
@@ -41,18 +40,18 @@ module.exports = function(config) {
       mode: 'development',
       module: {
         rules: [{
-            use: [
-              {
-                loader: 'babel-loader',
-                options: {
-                  babelrc: true,
-                  extends: join(__dirname + '/.babelrc'),
-                  cacheDirectory: true,
-                  envName: 'develop'
-                }
+          use: [
+            {
+              loader: 'babel-loader',
+              options: {
+                babelrc: true,
+                extends: path.join(__dirname, '/.babelrc'),
+                cacheDirectory: true,
+                envName: 'develop'
               }
-            ]
-          }
+            }
+          ]
+        }
         ]
       }
     },
@@ -64,5 +63,5 @@ module.exports = function(config) {
     webpackServer: {
       noInfo: true
     }
-  });
-};
+  })
+}
