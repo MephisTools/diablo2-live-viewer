@@ -52,7 +52,7 @@ class Diablo2Map extends LitElement {
       const { protocol, name, params } = JSON.parse(message.data)
       console.log(protocol, name, JSON.stringify(params))
 
-      if (name === 'D2GS_NPCMOVE') {
+      if (name === 'D2GS_NPCMOVE' || name === 'D2GS_NPCSTOP') {
         let { x, y, unitId } = params;
         ({ x, y } = transformCoords({ x, y }))
         if (this.entities[unitId] === undefined) {
