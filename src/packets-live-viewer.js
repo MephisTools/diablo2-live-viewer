@@ -21,7 +21,13 @@ class PacketsLiveViewer extends LitElement {
   firstUpdated () {
     this.displayPacketsTable()
     this.packetsTable = $(this.shadowRoot.querySelector('#myTable')).DataTable({
-      'order': [[ 0, 'desc' ]]
+      'order': [[ 0, 'desc' ]],
+      'columns': [
+        null,
+        null,
+        null,
+        { width: '70%' }
+      ]
     })
   }
 
