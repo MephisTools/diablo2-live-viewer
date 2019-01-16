@@ -7,6 +7,7 @@ Uses
 * [jquery datatables](https://datatables.net/) to display packet tables
 * [lit-element](https://lit-element.polymer-project.org/) to create light weight web components (no framework !)
 * [webpack](https://webpack.js.org/) for bundling
+* [create-lit-app](https://github.com/thepassle/create-lit-app) was used as a template to create the initial structure of the project
 
 ## Installation
 
