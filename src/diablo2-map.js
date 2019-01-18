@@ -86,10 +86,10 @@ class Diablo2Map extends LitElement {
       if (name === 'D2GS_ASSIGNLVLWARP') {
         let { x, y, warpId } = params;
         ({ x, y } = transformCoords({ x, y }))
-        if (this.entities[warpId] === undefined) {
-          this.entities[warpId] = L.marker(xy(x, y)).addTo(this.map).bindTooltip('warp ', { permanent: true, direction: 'right' })
+        if (this.warps[warpId] === undefined) {
+          this.warps[warpId] = L.marker(xy(x, y)).addTo(this.map).bindTooltip('warp ', { permanent: true, direction: 'right' })
         } else {
-          this.entities[warpId].setLatLng(xy(x, y))
+          this.warps[warpId].setLatLng(xy(x, y))
         }
       }
 
@@ -100,10 +100,10 @@ class Diablo2Map extends LitElement {
           }
           let { x, y, id, name } = params;
           ({ x, y } = transformCoords({ x, y }))
-          if (this.entities[id] === undefined) {
-            this.entities[id] = L.marker(xy(x, y)).addTo(this.map).bindTooltip(name, { permanent: true, direction: 'right' })
+          if (this.items[id] === undefined) {
+            this.items[id] = L.marker(xy(x, y)).addTo(this.map).bindTooltip(name, { permanent: true, direction: 'right' })
           } else {
-            this.entities[id].setLatLng(xy(x, y))
+            this.items[id].setLatLng(xy(x, y))
           }
         } catch (error) {
           console.log(error)
