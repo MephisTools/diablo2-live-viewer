@@ -43,7 +43,7 @@ class Diablo2Map extends LitElement {
       minZoom: -3
     })
 
-    const bounds = [xy(-25, -26.5), xy(428, 220)]
+    // const bounds = [xy(-25, -26.5), xy(428, 220)]
     // L.imageOverlay('assets/Rogue_Encampment_Map.jpg', bounds).addTo(this.map)
 
     this.map.setView(xy(120, 70), 1)
