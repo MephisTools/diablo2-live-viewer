@@ -82,6 +82,33 @@ class Diablo2Map extends LitElement {
           this.entities[unitId].setLatLng(xy(x, y))
         }
       }
+
+      if (name === 'D2GS_ASSIGNLVLWARP') {
+        let { x, y, warpId } = params;
+        ({ x, y } = transformCoords({ x, y }))
+        if (this.entities[warpId] === undefined) {
+          this.entities[warpId] = L.marker(xy(x, y)).addTo(this.map).bindTooltip('warp ', { permanent: true, direction: 'right' })
+        } else {
+          this.entities[warpId].setLatLng(xy(x, y))
+        }
+      }
+
+      if (name === 'D2GS_ITEMACTIONWORLD') {
+        try {
+          if (!params.ground) {
+            return
+          }
+          let { x, y, id, name } = params;
+          ({ x, y } = transformCoords({ x, y }))
+          if (this.entities[id] === undefined) {
+            this.entities[id] = L.marker(xy(x, y)).addTo(this.map).bindTooltip(name, { permanent: true, direction: 'right' })
+          } else {
+            this.entities[id].setLatLng(xy(x, y))
+          }
+        } catch (error) {
+          console.log(error)
+        }
+      }
     })
   }
 
