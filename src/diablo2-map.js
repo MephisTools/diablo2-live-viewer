@@ -97,7 +97,7 @@ class Diablo2Map extends LitElement {
     ({ x, y } = transformCoords({ x, y }))
     const pos = xy(x, y)
     if (this.warps[unitId] === undefined) {
-      this.warps[unitId] = L.marker(pos, { icon: Diablo2Map.createIcon('yellow') })
+      this.warps[unitId] = L.marker(pos, { icon: Diablo2Map.createIcon('orange') })
         .addTo(this.map).bindTooltip('warp ' + unitId, { permanent: true, direction: 'right' })
     }
   }
@@ -117,7 +117,7 @@ class Diablo2Map extends LitElement {
       const pos = xy(x, y)
       if (this.items[id] === undefined) {
         if (quality === 'unique') {
-          const myIcon = Diablo2Map.createIcon('violet')
+          const myIcon = Diablo2Map.createIcon('purple')
           this.items[id] = L.marker(pos, { icon: myIcon })
             .addTo(this.map).bindTooltip(name, { permanent: true, direction: 'right' })
         } else {
