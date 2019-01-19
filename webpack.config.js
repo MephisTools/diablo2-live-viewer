@@ -82,6 +82,12 @@ const commonConfig = merge([
           use: [
             'file-loader'
           ]
+        },
+        {
+          test: /\.txt$/,
+          use: [
+            'raw-loader'
+          ]
         }
       ]
     }

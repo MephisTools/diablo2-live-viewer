@@ -1,5 +1,6 @@
 /* globals customElements */
 
+import monsterNamesRaw from './monster_names.txt'
 import { LitElement, html } from '@polymer/lit-element/'
 import L from 'leaflet'
 import css from 'leaflet/dist/leaflet.css'
@@ -10,6 +11,8 @@ L.Icon.Default.mergeOptions({
   iconUrl: require('leaflet/dist/images/marker-icon.png'),
   shadowUrl: require('leaflet/dist/images/marker-shadow.png')
 })
+
+const monsterNames = monsterNamesRaw.split('\n')
 
 function transformCoords ({ x, y }) {
   return { x: x - 4400, y: -y + 4700 }
@@ -49,29 +52,44 @@ class Diablo2Map extends LitElement {
     // L.imageOverlay('assets/Rogue_Encampment_Map.jpg', bounds).addTo(this.map)
 
     this.map.setView(xy(120, 70), 2)
+    this.positionned = false
 
     this.ws.addEventListener('message', message => {
       const { protocol, name, params } = JSON.parse(message.data)
       console.log(protocol, name, JSON.stringify(params))
 
-      if (name === 'D2GS_NPCMOVE' || name === 'D2GS_NPCSTOP') {
-        let { x, y, unitId } = params;
+      if (name === 'D2GS_NPCMOVE' || name === 'D2GS_NPCSTOP' || name === 'D2GS_ASSIGNNPC') {
+        let { x, y, unitId, unitCode } = params;
         ({ x, y } = transformCoords({ x, y }))
         const pos = xy(x, y)
+        const name = (unitCode !== undefined ? (monsterNames[unitCode] !== '' ? monsterNames[unitCode] : ('NPC ' + unitCode)) : 'NPC')
         if (this.entities[unitId] === undefined) {
-          this.entities[unitId] = L.marker(pos).addTo(this.map).bindTooltip('NPC ' + unitId, { permanent: true, direction: 'right' })
+          this.entities[unitId] = L.marker(pos).addTo(this.map).bindTooltip(name + ' ' + unitId, { permanent: true, direction: 'right' })
         } else {
           this.entities[unitId].setLatLng(pos)
+          if (unitCode !== undefined) {
+            this.entities[unitId].setTooltipContent(name + ' ' + unitId)
+          }
+        }
+        if (!this.positionned) {
+          this.map.panTo(pos)
+          this.positionned = true
         }
       }
 
       if (name === 'D2GS_PLAYERMOVE') {
         let { targetX: x, targetY: y, unitId } = params;
         ({ x, y } = transformCoords({ x, y }))
+        const pos = xy(x, y)
         if (this.entities[unitId] === undefined) {
-          this.entities[unitId] = L.marker(xy(x, y)).addTo(this.map).bindTooltip('player ' + unitId, { permanent: true, direction: 'right' })
+          this.entities[unitId] = L.marker(pos).addTo(this.map).bindTooltip('player ' + unitId, { permanent: true, direction: 'right' })
         } else {
-          this.entities[unitId].setLatLng(xy(x, y))
+          this.entities[unitId].setLatLng(pos)
+        }
+
+        if (!this.positionned) {
+          this.map.panTo(pos)
+          this.positionned = true
         }
       }
 
@@ -86,13 +104,15 @@ class Diablo2Map extends LitElement {
           this.entities[unitId].setLatLng(pos)
         }
         this.map.panTo(pos)
+        this.positionned = true
       }
 
       if (name === 'D2GS_ASSIGNLVLWARP') {
         let { x, y, warpId } = params;
         ({ x, y } = transformCoords({ x, y }))
+        const pos = xy(x, y)
         if (this.warps[warpId] === undefined) {
-          this.warps[warpId] = L.marker(xy(x, y)).addTo(this.map).bindTooltip('warp ' + warpId, { permanent: true, direction: 'right' })
+          this.warps[warpId] = L.marker(pos).addTo(this.map).bindTooltip('warp ' + warpId, { permanent: true, direction: 'right' })
         }
       }
 
@@ -103,6 +123,7 @@ class Diablo2Map extends LitElement {
           }
           let { x, y, id, name, quality } = params;
           ({ x, y } = transformCoords({ x, y }))
+          const pos = xy(x, y)
           if (this.items[id] === undefined) {
             if (quality === 'unique') {
               const myCustomColour = '#583470'
@@ -126,9 +147,9 @@ class Diablo2Map extends LitElement {
                 popupAnchor: [0, -36],
                 html: `<span style="${markerHtmlStyles}" />`
               })
-              this.items[id] = L.marker(xy(x, y), { icon: myIcon }).addTo(this.map).bindTooltip(name, { permanent: true, direction: 'right' })
+              this.items[id] = L.marker(pos, { icon: myIcon }).addTo(this.map).bindTooltip(name, { permanent: true, direction: 'right' })
             } else {
-              this.items[id] = L.marker(xy(x, y)).addTo(this.map).bindTooltip(name, { permanent: true, direction: 'right' })
+              this.items[id] = L.marker(pos).addTo(this.map).bindTooltip(name, { permanent: true, direction: 'right' })
             }
           }
         } catch (error) {
