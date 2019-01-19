@@ -162,6 +162,11 @@ class Diablo2Map extends LitElement {
         this.displayWalkVerify(x, y)
       }
 
+      if (name === 'D2GS_RUNTOLOCATION' || name === 'D2GS_WALKTOLOCATION') {
+        let { xCoordinate: x, yCoordinate: y } = params
+        this.displayWalkVerify(x, y)
+      }
+
       if (name === 'D2GS_ASSIGNLVLWARP') {
         let { x, y, unitId } = params
         this.displayWarp(x, y, unitId)
