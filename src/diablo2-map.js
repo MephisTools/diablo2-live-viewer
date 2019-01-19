@@ -152,6 +152,11 @@ class Diablo2Map extends LitElement {
         this.displayPlayerMove(x, y, unitId)
       }
 
+      if (name === 'D2GS_REASSIGNPLAYER') {
+        let { x, y, unitId } = params
+        if (unitId === 1) { this.displayWalkVerify(x, y) } else { this.displayPlayerMove(x, y, unitId) }
+      }
+
       if (name === 'D2GS_WALKVERIFY') {
         let { x, y } = params
         this.displayWalkVerify(x, y)
