@@ -18,6 +18,7 @@
     "express": "^4.16.3",
     "file-loader": "^3.0.1",
     "leaflet": "^1.4.0",
+    "leaflet.awesome-markers": "^2.0.5",
     "lit-html": "^0.14.0",
     "page": "^1.11.3",
     "promise-polyfill": "^8.0.0",

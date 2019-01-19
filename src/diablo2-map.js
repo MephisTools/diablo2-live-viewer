@@ -4,6 +4,9 @@ import monsterNamesRaw from './monster_names.txt'
 import { LitElement, html } from '@polymer/lit-element/'
 import L from 'leaflet'
 import css from 'leaflet/dist/leaflet.css'
+import 'leaflet.awesome-markers'
+import cssMarkers from 'leaflet.awesome-markers/dist/leaflet.awesome-markers.css'
+
 /* This code is needed to properly load the images in the Leaflet CSS */
 delete L.Icon.Default.prototype._getIconUrl
 L.Icon.Default.mergeOptions({
@@ -41,6 +44,92 @@ class Diablo2Map extends LitElement {
     this.displayMap()
   }
 
+  displayNpc (x, y, unitId, unitCode) {
+    ({ x, y } = transformCoords({ x, y }))
+    const pos = xy(x, y)
+    const name = (unitCode !== undefined ? (monsterNames[unitCode] !== '' ? monsterNames[unitCode] : ('NPC ' + unitCode)) : 'NPC')
+    if (this.entities[unitId] === undefined) {
+      this.entities[unitId] = L.marker(pos, { icon: Diablo2Map.createIcon('green') })
+        .addTo(this.map).bindTooltip(name + ' ' + unitId, { permanent: true, direction: 'right' })
+    } else {
+      this.entities[unitId].setLatLng(pos)
+      if (unitCode !== undefined) {
+        this.entities[unitId].setTooltipContent(name + ' ' + unitId)
+      }
+    }
+    if (!this.positionned) {
+      this.map.panTo(pos)
+      this.positionned = true
+    }
+  }
+
+  displayPlayerMove (x, y, unitId) {
+    ({ x, y } = transformCoords({ x, y }))
+    const pos = xy(x, y)
+    if (this.entities[unitId] === undefined) {
+      this.entities[unitId] = L.marker(pos, { icon: Diablo2Map.createIcon('blue') })
+        .addTo(this.map).bindTooltip('player ' + unitId, { permanent: true, direction: 'right' })
+    } else {
+      this.entities[unitId].setLatLng(pos)
+    }
+
+    if (!this.positionned) {
+      this.map.panTo(pos)
+      this.positionned = true
+    }
+  }
+
+  displayWalkVerify (x, y) {
+    ({ x, y } = transformCoords({ x, y }))
+    const unitId = 99999
+    const pos = xy(x, y)
+    if (this.entities[unitId] === undefined) {
+      this.entities[unitId] = L.marker(pos, { icon: Diablo2Map.createIcon('red') })
+        .addTo(this.map).bindTooltip('myself ', { permanent: true, direction: 'right' })
+    } else {
+      this.entities[unitId].setLatLng(pos)
+    }
+    this.map.panTo(pos)
+    this.positionned = true
+  }
+
+  displayWarp (x, y, unitId) {
+    ({ x, y } = transformCoords({ x, y }))
+    const pos = xy(x, y)
+    if (this.warps[unitId] === undefined) {
+      this.warps[unitId] = L.marker(pos, { icon: Diablo2Map.createIcon('yellow') })
+        .addTo(this.map).bindTooltip('warp ' + unitId, { permanent: true, direction: 'right' })
+    }
+  }
+
+  static createIcon (myCustomColour) {
+    return L.AwesomeMarkers.icon({
+      markerColor: myCustomColour
+    })
+  }
+
+  displayItem (x, y, id, name, quality, ground) {
+    try {
+      if (!ground) {
+        return
+      }
+      ({ x, y } = transformCoords({ x, y }))
+      const pos = xy(x, y)
+      if (this.items[id] === undefined) {
+        if (quality === 'unique') {
+          const myIcon = Diablo2Map.createIcon('violet')
+          this.items[id] = L.marker(pos, { icon: myIcon })
+            .addTo(this.map).bindTooltip(name, { permanent: true, direction: 'right' })
+        } else {
+          this.items[id] = L.marker(pos, { icon: Diablo2Map.createIcon('black') })
+            .addTo(this.map).bindTooltip(name, { permanent: true, direction: 'right' })
+        }
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   displayMap () {
     const mapElement = this.shadowRoot.querySelector('#map')
     this.map = L.map(mapElement, {
@@ -55,106 +144,31 @@ class Diablo2Map extends LitElement {
     this.positionned = false
 
     this.ws.addEventListener('message', message => {
-      const { protocol, name, params } = JSON.parse(message.data)
-      console.log(protocol, name, JSON.stringify(params))
+      const { name, params } = JSON.parse(message.data)
 
       if (name === 'D2GS_NPCMOVE' || name === 'D2GS_NPCSTOP' || name === 'D2GS_ASSIGNNPC') {
-        let { x, y, unitId, unitCode } = params;
-        ({ x, y } = transformCoords({ x, y }))
-        const pos = xy(x, y)
-        const name = (unitCode !== undefined ? (monsterNames[unitCode] !== '' ? monsterNames[unitCode] : ('NPC ' + unitCode)) : 'NPC')
-        if (this.entities[unitId] === undefined) {
-          this.entities[unitId] = L.marker(pos).addTo(this.map).bindTooltip(name + ' ' + unitId, { permanent: true, direction: 'right' })
-        } else {
-          this.entities[unitId].setLatLng(pos)
-          if (unitCode !== undefined) {
-            this.entities[unitId].setTooltipContent(name + ' ' + unitId)
-          }
-        }
-        if (!this.positionned) {
-          this.map.panTo(pos)
-          this.positionned = true
-        }
+        let { x, y, unitId, unitCode } = params
+        this.displayNpc(x, y, unitId, unitCode)
       }
 
       if (name === 'D2GS_PLAYERMOVE') {
-        let { targetX: x, targetY: y, unitId } = params;
-        ({ x, y } = transformCoords({ x, y }))
-        const pos = xy(x, y)
-        if (this.entities[unitId] === undefined) {
-          this.entities[unitId] = L.marker(pos).addTo(this.map).bindTooltip('player ' + unitId, { permanent: true, direction: 'right' })
-        } else {
-          this.entities[unitId].setLatLng(pos)
-        }
-
-        if (!this.positionned) {
-          this.map.panTo(pos)
-          this.positionned = true
-        }
+        let { targetX: x, targetY: y, unitId } = params
+        this.displayPlayerMove(x, y, unitId)
       }
 
       if (name === 'D2GS_WALKVERIFY') {
-        let { x, y } = params;
-        ({ x, y } = transformCoords({ x, y }))
-        const unitId = 99999
-        const pos = xy(x, y)
-        if (this.entities[unitId] === undefined) {
-          this.entities[unitId] = L.marker(pos).addTo(this.map).bindTooltip('myself ', { permanent: true, direction: 'right' })
-        } else {
-          this.entities[unitId].setLatLng(pos)
-        }
-        this.map.panTo(pos)
-        this.positionned = true
+        let { x, y } = params
+        this.displayWalkVerify(x, y)
       }
 
       if (name === 'D2GS_ASSIGNLVLWARP') {
-        let { x, y, warpId } = params;
-        ({ x, y } = transformCoords({ x, y }))
-        const pos = xy(x, y)
-        if (this.warps[warpId] === undefined) {
-          this.warps[warpId] = L.marker(pos).addTo(this.map).bindTooltip('warp ' + warpId, { permanent: true, direction: 'right' })
-        }
+        let { x, y, unitId } = params
+        this.displayWarp(x, y, unitId)
       }
 
       if (name === 'D2GS_ITEMACTIONWORLD') {
-        try {
-          if (!params.ground) {
-            return
-          }
-          let { x, y, id, name, quality } = params;
-          ({ x, y } = transformCoords({ x, y }))
-          const pos = xy(x, y)
-          if (this.items[id] === undefined) {
-            if (quality === 'unique') {
-              const myCustomColour = '#583470'
-
-              const markerHtmlStyles = `
-                background-color: ${myCustomColour};
-                width: 3rem;
-                height: 3rem;
-                display: block;
-                left: -1.5rem;
-                top: -1.5rem;
-                position: relative;
-                border-radius: 3rem 3rem 0;
-                transform: rotate(45deg);
-                border: 1px solid #FFFFFF`
-
-              const myIcon = L.divIcon({
-                className: 'my-custom-pin',
-                iconAnchor: [0, 24],
-                labelAnchor: [-6, 0],
-                popupAnchor: [0, -36],
-                html: `<span style="${markerHtmlStyles}" />`
-              })
-              this.items[id] = L.marker(pos, { icon: myIcon }).addTo(this.map).bindTooltip(name, { permanent: true, direction: 'right' })
-            } else {
-              this.items[id] = L.marker(pos).addTo(this.map).bindTooltip(name, { permanent: true, direction: 'right' })
-            }
-          }
-        } catch (error) {
-          console.log(error)
-        }
+        let { x, y, id, name, quality, ground } = params
+        this.displayItem(x, y, id, name, quality, ground)
       }
     })
   }
@@ -167,6 +181,7 @@ class Diablo2Map extends LitElement {
       }
       
       ${css}
+      ${cssMarkers}
     </style>
     <div id="map" style=" width: 100%; height:100%; position: relative;"></div>
     `
