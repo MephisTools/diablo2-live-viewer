@@ -154,7 +154,7 @@ class Diablo2Map extends LitElement {
     const pos = xy(x, y)
     if (this.objects[objectId] === undefined) {
       const objectName = objectsById[objectType] === undefined ? 'object ' + objectType : objectsById[objectType]['description - not loaded']
-      this.objects[objectId] = Diablo2Map.addMarker(this.objectLayer, pos, 'cadetblue', objectName + ' ' + objectId, true)
+      this.objects[objectId] = Diablo2Map.addMarker(this.objectLayer, pos, 'cadetblue', objectName + ' ' + objectId, false)
     }
   }
 
