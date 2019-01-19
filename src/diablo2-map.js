@@ -1,6 +1,7 @@
 /* globals customElements */
 
 import monsterNamesRaw from './monster_names.txt'
+import objectsRaw from './objects.txt'
 import { LitElement, html } from '@polymer/lit-element/'
 import L from 'leaflet'
 import css from 'leaflet/dist/leaflet.css'
@@ -8,6 +9,24 @@ import 'leaflet.awesome-markers'
 import cssMarkers from 'leaflet.awesome-markers/dist/leaflet.awesome-markers.css'
 import 'leaflet-search'
 import cssSearch from 'leaflet-search/dist/leaflet-search.src.css'
+
+function loadCsv (txt) {
+  const lines = txt.split('\n')
+  const header = lines.shift().split('\t')
+  return lines
+    .map(line => line.split('\t'))
+    .map(arr => arr.reduce((acc, e, i) => {
+      acc[header[i]] = e
+      return acc
+    }, {}))
+}
+
+const objects = loadCsv(objectsRaw)
+
+const objectsById = objects.reduce((acc, object) => {
+  acc[parseInt(object['Id'])] = object
+  return acc
+}, {})
 
 /* This code is needed to properly load the images in the Leaflet CSS */
 delete L.Icon.Default.prototype._getIconUrl
@@ -134,7 +153,8 @@ class Diablo2Map extends LitElement {
     ({ x, y } = transformCoords({ x, y }))
     const pos = xy(x, y)
     if (this.objects[objectId] === undefined) {
-      this.objects[objectId] = Diablo2Map.addMarker(this.objectLayer, pos, 'cadetblue', 'object ' + objectType + ' ' + objectId, false)
+      const objectName = objectsById[objectType] === undefined ? 'object ' + objectType : objectsById[objectType]['description - not loaded']
+      this.objects[objectId] = Diablo2Map.addMarker(this.objectLayer, pos, 'cadetblue', objectName + ' ' + objectId, true)
     }
   }
 
@@ -178,8 +198,8 @@ class Diablo2Map extends LitElement {
       }
 
       if (name === 'D2GS_WORLDOBJECT') {
-        let { xCoordinate: x, yCoordinate: y, objectId, objectType } = params
-        this.displayObject(x, y, objectId, objectType)
+        let { xCoordinate: x, yCoordinate: y, objectId, objectUniqueCode } = params
+        this.displayObject(x, y, objectId, objectUniqueCode)
       }
     })
   }
