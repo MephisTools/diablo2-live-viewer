@@ -33,6 +33,8 @@ class Diablo2Map extends LitElement {
 
   firstUpdated () {
     this.entities = {}
+    this.warps = {}
+    this.items = {}
     this.displayMap()
   }
 
@@ -46,7 +48,7 @@ class Diablo2Map extends LitElement {
     // const bounds = [xy(-25, -26.5), xy(428, 220)]
     // L.imageOverlay('assets/Rogue_Encampment_Map.jpg', bounds).addTo(this.map)
 
-    this.map.setView(xy(120, 70), 1)
+    this.map.setView(xy(120, 70), 2)
 
     this.ws.addEventListener('message', message => {
       const { protocol, name, params } = JSON.parse(message.data)
@@ -55,10 +57,11 @@ class Diablo2Map extends LitElement {
       if (name === 'D2GS_NPCMOVE' || name === 'D2GS_NPCSTOP') {
         let { x, y, unitId } = params;
         ({ x, y } = transformCoords({ x, y }))
+        const pos = xy(x, y)
         if (this.entities[unitId] === undefined) {
-          this.entities[unitId] = L.marker(xy(x, y)).addTo(this.map).bindTooltip('NPC ' + unitId, { permanent: true, direction: 'right' })
+          this.entities[unitId] = L.marker(pos).addTo(this.map).bindTooltip('NPC ' + unitId, { permanent: true, direction: 'right' })
         } else {
-          this.entities[unitId].setLatLng(xy(x, y))
+          this.entities[unitId].setLatLng(pos)
         }
       }
 
@@ -76,11 +79,13 @@ class Diablo2Map extends LitElement {
         let { x, y } = params;
         ({ x, y } = transformCoords({ x, y }))
         const unitId = 99999
+        const pos = xy(x, y)
         if (this.entities[unitId] === undefined) {
-          this.entities[unitId] = L.marker(xy(x, y)).addTo(this.map).bindTooltip('myself ', { permanent: true, direction: 'right' })
+          this.entities[unitId] = L.marker(pos).addTo(this.map).bindTooltip('myself ', { permanent: true, direction: 'right' })
         } else {
-          this.entities[unitId].setLatLng(xy(x, y))
+          this.entities[unitId].setLatLng(pos)
         }
+        this.map.panTo(pos)
       }
 
       if (name === 'D2GS_ASSIGNLVLWARP') {
