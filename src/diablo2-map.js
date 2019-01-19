@@ -173,7 +173,7 @@ class Diablo2Map extends LitElement {
     this.entitiesLayers = new L.LayerGroup([])
     this.map.addLayer(this.entitiesLayers)
 
-    this.map.setView(xy(120, 70), 2)
+    this.map.setZoom(2)
     this.positionned = false
 
     this.map.addControl(new L.Control.Search({
