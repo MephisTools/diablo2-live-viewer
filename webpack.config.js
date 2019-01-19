@@ -84,6 +84,12 @@ const commonConfig = merge([
           ]
         },
         {
+          test: /\.gif$/,
+          use: [
+            'file-loader'
+          ]
+        },
+        {
           test: /\.txt$/,
           use: [
             'raw-loader'

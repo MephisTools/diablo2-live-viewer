@@ -6,6 +6,8 @@ import L from 'leaflet'
 import css from 'leaflet/dist/leaflet.css'
 import 'leaflet.awesome-markers'
 import cssMarkers from 'leaflet.awesome-markers/dist/leaflet.awesome-markers.css'
+import 'leaflet-search'
+import cssSearch from 'leaflet-search/dist/leaflet-search.src.css'
 
 /* This code is needed to properly load the images in the Leaflet CSS */
 delete L.Icon.Default.prototype._getIconUrl
@@ -44,17 +46,24 @@ class Diablo2Map extends LitElement {
     this.displayMap()
   }
 
+  addMarker (pos, color, title) {
+    const marker = L.marker(pos, { icon: Diablo2Map.createIcon(color), title })
+    this.entitiesLayers.addLayer(marker)
+    marker.bindTooltip(title, { permanent: true, direction: 'right' })
+    return marker
+  }
+
   displayNpc (x, y, unitId, unitCode) {
     ({ x, y } = transformCoords({ x, y }))
     const pos = xy(x, y)
     const name = (unitCode !== undefined ? (monsterNames[unitCode] !== '' ? monsterNames[unitCode] : ('NPC ' + unitCode)) : 'NPC')
     if (this.entities[unitId] === undefined) {
-      this.entities[unitId] = L.marker(pos, { icon: Diablo2Map.createIcon('green') })
-        .addTo(this.map).bindTooltip(name + ' ' + unitId, { permanent: true, direction: 'right' })
+      this.entities[unitId] = this.addMarker(pos, 'green', name + ' ' + unitId)
     } else {
       this.entities[unitId].setLatLng(pos)
       if (unitCode !== undefined) {
-        this.entities[unitId].setTooltipContent(name + ' ' + unitId)
+        this.entitiesLayers.removeLayer(this.entities[unitId])
+        this.entities[unitId] = this.addMarker(pos, 'green', name + ' ' + unitId)
       }
     }
     if (!this.positionned) {
@@ -67,8 +76,7 @@ class Diablo2Map extends LitElement {
     ({ x, y } = transformCoords({ x, y }))
     const pos = xy(x, y)
     if (this.entities[unitId] === undefined) {
-      this.entities[unitId] = L.marker(pos, { icon: Diablo2Map.createIcon('blue') })
-        .addTo(this.map).bindTooltip('player ' + unitId, { permanent: true, direction: 'right' })
+      this.entities[unitId] = this.addMarker(pos, 'blue', 'player ' + unitId)
     } else {
       this.entities[unitId].setLatLng(pos)
     }
@@ -84,8 +92,7 @@ class Diablo2Map extends LitElement {
     const unitId = 99999
     const pos = xy(x, y)
     if (this.entities[unitId] === undefined) {
-      this.entities[unitId] = L.marker(pos, { icon: Diablo2Map.createIcon('red') })
-        .addTo(this.map).bindTooltip('myself ', { permanent: true, direction: 'right' })
+      this.entities[unitId] = this.addMarker(pos, 'red', 'myself')
     } else {
       this.entities[unitId].setLatLng(pos)
     }
@@ -97,8 +104,7 @@ class Diablo2Map extends LitElement {
     ({ x, y } = transformCoords({ x, y }))
     const pos = xy(x, y)
     if (this.warps[unitId] === undefined) {
-      this.warps[unitId] = L.marker(pos, { icon: Diablo2Map.createIcon('orange') })
-        .addTo(this.map).bindTooltip('warp ' + unitId, { permanent: true, direction: 'right' })
+      this.warps[unitId] = this.addMarker(pos, 'orange', 'warp ' + unitId)
     }
   }
 
@@ -117,12 +123,9 @@ class Diablo2Map extends LitElement {
       const pos = xy(x, y)
       if (this.items[id] === undefined) {
         if (quality === 'unique') {
-          const myIcon = Diablo2Map.createIcon('purple')
-          this.items[id] = L.marker(pos, { icon: myIcon })
-            .addTo(this.map).bindTooltip(name, { permanent: true, direction: 'right' })
+          this.items[id] = this.addMarker(pos, 'purple', name)
         } else {
-          this.items[id] = L.marker(pos, { icon: Diablo2Map.createIcon('black') })
-            .addTo(this.map).bindTooltip(name, { permanent: true, direction: 'right' })
+          this.items[id] = this.addMarker(pos, 'black', name)
         }
       }
     } catch (error) {
@@ -130,19 +133,7 @@ class Diablo2Map extends LitElement {
     }
   }
 
-  displayMap () {
-    const mapElement = this.shadowRoot.querySelector('#map')
-    this.map = L.map(mapElement, {
-      crs: L.CRS.Simple,
-      minZoom: -3
-    })
-
-    // const bounds = [xy(-25, -26.5), xy(428, 220)]
-    // L.imageOverlay('assets/Rogue_Encampment_Map.jpg', bounds).addTo(this.map)
-
-    this.map.setView(xy(120, 70), 2)
-    this.positionned = false
-
+  listenToPackets () {
     this.ws.addEventListener('message', message => {
       const { name, params } = JSON.parse(message.data)
 
@@ -173,6 +164,25 @@ class Diablo2Map extends LitElement {
     })
   }
 
+  displayMap () {
+    const mapElement = this.shadowRoot.querySelector('#map')
+    this.map = L.map(mapElement, {
+      crs: L.CRS.Simple,
+      minZoom: -3
+    })
+    this.entitiesLayers = new L.LayerGroup([])
+    this.map.addLayer(this.entitiesLayers)
+
+    this.map.setView(xy(120, 70), 2)
+    this.positionned = false
+
+    this.map.addControl(new L.Control.Search({
+      layer: this.entitiesLayers
+    }))
+
+    this.listenToPackets()
+  }
+
   render () {
     return html`
     <style>
@@ -182,6 +192,7 @@ class Diablo2Map extends LitElement {
       
       ${css}
       ${cssMarkers}
+      ${cssSearch}
     </style>
     <div id="map" style=" width: 100%; height:100%; position: relative;"></div>
     `
