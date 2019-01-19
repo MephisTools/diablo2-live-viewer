@@ -46,10 +46,10 @@ class Diablo2Map extends LitElement {
     this.displayMap()
   }
 
-  addMarker (pos, color, title) {
+  static addMarker (layer, pos, color, title, permanent = true) {
     const marker = L.marker(pos, { icon: Diablo2Map.createIcon(color), title })
-    this.entitiesLayers.addLayer(marker)
-    marker.bindTooltip(title, { permanent: true, direction: 'right' })
+    layer.addLayer(marker)
+    marker.bindTooltip(title, { permanent, direction: 'right' })
     return marker
   }
 
@@ -58,12 +58,12 @@ class Diablo2Map extends LitElement {
     const pos = xy(x, y)
     const name = (unitCode !== undefined ? (monsterNames[unitCode] !== '' ? monsterNames[unitCode] : ('NPC ' + unitCode)) : 'NPC')
     if (this.entities[unitId] === undefined) {
-      this.entities[unitId] = this.addMarker(pos, 'green', name + ' ' + unitId)
+      this.entities[unitId] = Diablo2Map.addMarker(this.npcLayer, pos, 'green', name + ' ' + unitId, false)
     } else {
       this.entities[unitId].setLatLng(pos)
       if (unitCode !== undefined) {
-        this.entitiesLayers.removeLayer(this.entities[unitId])
-        this.entities[unitId] = this.addMarker(pos, 'green', name + ' ' + unitId)
+        this.npcLayer.removeLayer(this.entities[unitId])
+        this.entities[unitId] = Diablo2Map.addMarker(this.npcLayer, pos, 'green', name + ' ' + unitId, false)
       }
     }
     if (!this.positionned) {
@@ -76,7 +76,7 @@ class Diablo2Map extends LitElement {
     ({ x, y } = transformCoords({ x, y }))
     const pos = xy(x, y)
     if (this.entities[unitId] === undefined) {
-      this.entities[unitId] = this.addMarker(pos, 'blue', 'player ' + unitId)
+      this.entities[unitId] = Diablo2Map.addMarker(this.playerLayer, pos, 'blue', 'player ' + unitId)
     } else {
       this.entities[unitId].setLatLng(pos)
     }
@@ -92,7 +92,7 @@ class Diablo2Map extends LitElement {
     const unitId = 99999
     const pos = xy(x, y)
     if (this.entities[unitId] === undefined) {
-      this.entities[unitId] = this.addMarker(pos, 'red', 'myself')
+      this.entities[unitId] = Diablo2Map.addMarker(this.playerLayer, pos, 'red', 'myself')
     } else {
       this.entities[unitId].setLatLng(pos)
     }
@@ -104,7 +104,7 @@ class Diablo2Map extends LitElement {
     ({ x, y } = transformCoords({ x, y }))
     const pos = xy(x, y)
     if (this.warps[unitId] === undefined) {
-      this.warps[unitId] = this.addMarker(pos, 'orange', 'warp ' + unitId)
+      this.warps[unitId] = Diablo2Map.addMarker(this.warpLayer, pos, 'orange', 'warp ' + unitId)
     }
   }
 
@@ -123,9 +123,9 @@ class Diablo2Map extends LitElement {
       const pos = xy(x, y)
       if (this.items[id] === undefined) {
         if (quality === 'unique') {
-          this.items[id] = this.addMarker(pos, 'purple', name)
+          this.items[id] = Diablo2Map.addMarker(this.itemLayer, pos, 'purple', name)
         } else {
-          this.items[id] = this.addMarker(pos, 'black', name)
+          this.items[id] = Diablo2Map.addMarker(this.itemLayer, pos, 'black', name)
         }
       }
     } catch (error) {
@@ -137,7 +137,7 @@ class Diablo2Map extends LitElement {
     this.ws.addEventListener('message', message => {
       const { name, params } = JSON.parse(message.data)
 
-      if (name === 'D2GS_NPCMOVE' || name === 'D2GS_NPCSTOP' || name === 'D2GS_ASSIGNNPC') {
+      if (name === 'D2GS_NPCMOVE' || name === 'D2GS_NPCSTOP' || name === 'D2GS_ASSIGNNPC' || name === 'D2GS_NPCMOVETOTARGET') {
         let { x, y, unitId, unitCode } = params
         this.displayNpc(x, y, unitId, unitCode)
       }
@@ -166,18 +166,33 @@ class Diablo2Map extends LitElement {
 
   displayMap () {
     const mapElement = this.shadowRoot.querySelector('#map')
+    this.playerLayer = L.layerGroup()
+    this.npcLayer = L.layerGroup()
+    this.itemLayer = L.layerGroup()
+    this.warpLayer = L.layerGroup()
     this.map = L.map(mapElement, {
       crs: L.CRS.Simple,
-      minZoom: -3
+      minZoom: -3,
+      layers: [this.playerLayer, this.npcLayer, this.itemLayer, this.warpLayer]
     })
-    this.entitiesLayers = new L.LayerGroup([])
-    this.map.addLayer(this.entitiesLayers)
+    const baseMaps = {
+    }
+
+    const overlayMaps = {
+      'player': this.playerLayer,
+      'npc': this.npcLayer,
+      'item': this.itemLayer,
+      'warp': this.warpLayer
+    }
+
+    L.control.layers(baseMaps, overlayMaps).addTo(this.map)
 
     this.map.setZoom(2)
     this.positionned = false
 
+    const searchLayer = L.layerGroup(Object.values(overlayMaps))
     this.map.addControl(new L.Control.Search({
-      layer: this.entitiesLayers
+      layer: searchLayer
     }))
 
     this.listenToPackets()
