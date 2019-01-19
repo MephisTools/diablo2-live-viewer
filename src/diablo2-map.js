@@ -40,9 +40,6 @@ class Diablo2Map extends LitElement {
   }
 
   firstUpdated () {
-    this.entities = {}
-    this.warps = {}
-    this.items = {}
     this.displayMap()
   }
 
@@ -133,6 +130,14 @@ class Diablo2Map extends LitElement {
     }
   }
 
+  displayObject (x, y, objectId, objectType) {
+    ({ x, y } = transformCoords({ x, y }))
+    const pos = xy(x, y)
+    if (this.objects[objectId] === undefined) {
+      this.objects[objectId] = Diablo2Map.addMarker(this.objectLayer, pos, 'cadetblue', 'object ' + objectType + ' ' + objectId, false)
+    }
+  }
+
   listenToPackets () {
     this.ws.addEventListener('message', message => {
       const { name, params } = JSON.parse(message.data)
@@ -161,20 +166,26 @@ class Diablo2Map extends LitElement {
         let { x, y, id, name, quality, ground } = params
         this.displayItem(x, y, id, name, quality, ground)
       }
+
+      if (name === 'D2GS_WORLDOBJECT') {
+        let { xCoordinate: x, yCoordinate: y, objectId, objectType } = params
+        this.displayObject(x, y, objectId, objectType)
+      }
     })
   }
 
   displayMap () {
+    this.entities = {}
+    this.warps = {}
+    this.items = {}
+    this.objects = {}
+
     const mapElement = this.shadowRoot.querySelector('#map')
     this.playerLayer = L.layerGroup()
     this.npcLayer = L.layerGroup()
     this.itemLayer = L.layerGroup()
+    this.objectLayer = L.layerGroup()
     this.warpLayer = L.layerGroup()
-    this.map = L.map(mapElement, {
-      crs: L.CRS.Simple,
-      minZoom: -3,
-      layers: [this.playerLayer, this.npcLayer, this.itemLayer, this.warpLayer]
-    })
     const baseMaps = {
     }
 
@@ -182,9 +193,15 @@ class Diablo2Map extends LitElement {
       'player': this.playerLayer,
       'npc': this.npcLayer,
       'item': this.itemLayer,
+      'object': this.objectLayer,
       'warp': this.warpLayer
     }
 
+    this.map = L.map(mapElement, {
+      crs: L.CRS.Simple,
+      minZoom: -3,
+      layers: Object.values(overlayMaps)
+    })
     L.control.layers(baseMaps, overlayMaps).addTo(this.map)
 
     this.map.setZoom(2)
