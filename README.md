@@ -1,4 +1,6 @@
 # diablo2-live-viewer
+[![NPM version](https://img.shields.io/npm/v/diablo2-live-viewer.svg)](http://npmjs.com/package/diablo2-live-viewer)
+[![Build Status](https://img.shields.io/circleci/project/MephisTools/diablo2-live-viewer/master.svg)](https://circleci.com/gh/MephisTools/diablo2-live-viewer)
 
 Display packets and information about a current diablo2 session
 
