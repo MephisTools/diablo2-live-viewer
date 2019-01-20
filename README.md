@@ -2,6 +2,14 @@
 
 Display packets and information about a current diablo2 session
 
+<img src="images/base_viewer.gif" width="300" height="300">
+
+<img src="images/filters_viewer.gif" width="300" height="300">
+
+<img src="images/tp_viewer.gif" width="300" height="300">
+
+<img src="images/mobs_viewer.gif" width="300" height="300">
+
 Uses
 * [leaflet](https://leafletjs.com/) to display maps
 * [jquery datatables](https://datatables.net/) to display packet tables
