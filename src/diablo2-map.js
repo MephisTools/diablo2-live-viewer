@@ -118,11 +118,11 @@ class Diablo2Map extends LitElement {
     }
   }
 
-  displayPlayerMove (x, y, unitId) {
+  displayPlayerMove (x, y, unitId, name) {
     ({ x, y } = transformCoords({ x, y }))
     const pos = xy(x, y)
     if (this.players[unitId] === undefined) {
-      this.players[unitId] = Diablo2Map.addMarker(this.playerLayer, pos, 'blue', 'player ' + unitId, false, barbarianIcon)
+      this.players[unitId] = Diablo2Map.addMarker(this.playerLayer, pos, 'blue', name !== undefined ? name : 'player ' + unitId, false, barbarianIcon)
     } else {
       this.players[unitId].setLatLng(pos)
     }
@@ -131,6 +131,15 @@ class Diablo2Map extends LitElement {
       this.map.panTo(pos)
       this.positionned = true
     }
+  }
+
+  removePlayer (playerId) {
+    if (this.players[playerId] === undefined) {
+      return
+    }
+    const marker = this.players[playerId]
+    this.playerLayer.removeLayer(marker)
+    delete this.players[playerId]
   }
 
   displayWalkVerify (x, y) {
@@ -213,6 +222,16 @@ class Diablo2Map extends LitElement {
       if (name === 'D2GS_REASSIGNPLAYER') {
         let { x, y, unitId } = params
         if (unitId === 1) { this.displayWalkVerify(x, y) } else { this.displayPlayerMove(x, y, unitId) }
+      }
+
+      if (name === 'D2GS_CREATECLIENTPLAYER') {
+        let { nPosX: x, nPosY: y, guid: unitId, szname } = params
+        this.displayPlayerMove(x, y, unitId, Buffer.from(szname).toString().replace(/\0.*$/g, ''))
+      }
+
+      if (name === 'D2GS_PLAYERLEFT') {
+        let { playerId } = params
+        this.removePlayer(playerId)
       }
 
       /*
