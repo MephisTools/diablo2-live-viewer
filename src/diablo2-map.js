@@ -9,6 +9,30 @@ import 'leaflet.awesome-markers'
 import cssMarkers from 'leaflet.awesome-markers/dist/leaflet.awesome-markers.css'
 import 'leaflet-search'
 import cssSearch from 'leaflet-search/dist/leaflet-search.src.css'
+import torch from './assets/torch.png'
+import fallen from './assets/fallen.png'
+import waypoint from './assets/waypoint.png'
+import sorceress from './assets/sorceress.png'
+
+const torchIcon = L.icon({
+  iconUrl: torch,
+  iconSize: [30, 30]
+})
+
+const fallenIcon = L.icon({
+  iconUrl: fallen,
+  iconSize: [30, 30]
+})
+
+const waypointIcon = L.icon({
+  iconUrl: waypoint,
+  iconSize: [30, 30]
+})
+
+const sorceressIcon = L.icon({
+  iconUrl: sorceress,
+  iconSize: [60, 60]
+})
 
 function loadCsv (txt) {
   const lines = txt.split('\n')
@@ -62,8 +86,8 @@ class Diablo2Map extends LitElement {
     this.displayMap()
   }
 
-  static addMarker (layer, pos, color, title, permanent = true) {
-    const marker = L.marker(pos, { icon: Diablo2Map.createIcon(color), title })
+  static addMarker (layer, pos, color, title, permanent = true, icon = null) {
+    const marker = L.marker(pos, { icon: icon === null ? Diablo2Map.createIcon(color) : icon, title })
     layer.addLayer(marker)
     marker.bindTooltip(title, { permanent, direction: 'right' })
     return marker
@@ -74,12 +98,12 @@ class Diablo2Map extends LitElement {
     const pos = xy(x, y)
     const name = (unitCode !== undefined ? (monsterNames[unitCode] !== '' ? monsterNames[unitCode] : ('NPC ' + unitCode)) : 'NPC')
     if (this.entities[unitId] === undefined) {
-      this.entities[unitId] = Diablo2Map.addMarker(this.npcLayer, pos, 'green', name + ' ' + unitId, false)
+      this.entities[unitId] = Diablo2Map.addMarker(this.npcLayer, pos, 'green', name + ' ' + unitId, false, fallenIcon)
     } else {
       this.entities[unitId].setLatLng(pos)
       if (unitCode !== undefined) {
         this.npcLayer.removeLayer(this.entities[unitId])
-        this.entities[unitId] = Diablo2Map.addMarker(this.npcLayer, pos, 'green', name + ' ' + unitId, false)
+        this.entities[unitId] = Diablo2Map.addMarker(this.npcLayer, pos, 'green', name + ' ' + unitId, false, fallenIcon)
       }
     }
     if (!this.positionned) {
@@ -108,7 +132,7 @@ class Diablo2Map extends LitElement {
     const unitId = 99999
     const pos = xy(x, y)
     if (this.entities[unitId] === undefined) {
-      this.entities[unitId] = Diablo2Map.addMarker(this.playerLayer, pos, 'red', 'myself')
+      this.entities[unitId] = Diablo2Map.addMarker(this.playerLayer, pos, 'red', 'myself', false, sorceressIcon)
     } else {
       this.entities[unitId].setLatLng(pos)
     }
@@ -154,7 +178,15 @@ class Diablo2Map extends LitElement {
     const pos = xy(x, y)
     if (this.objects[objectId] === undefined) {
       const objectName = objectsById[objectType] === undefined ? 'object ' + objectType : objectsById[objectType]['description - not loaded']
-      this.objects[objectId] = Diablo2Map.addMarker(this.objectLayer, pos, 'cadetblue', objectName + ' ' + objectId, false)
+      const lowerName = objectName.toLowerCase()
+      let icon = null
+      if (lowerName.includes('torch')) {
+        icon = torchIcon
+      } else if (lowerName.includes('waypoint')) {
+        icon = waypointIcon
+      }
+
+      this.objects[objectId] = Diablo2Map.addMarker(this.objectLayer, pos, 'cadetblue', objectName + ' ' + objectId, false, icon)
     }
   }
 
