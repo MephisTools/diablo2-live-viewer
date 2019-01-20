@@ -1,6 +1,6 @@
 /* globals customElements */
 
-import { LitElement, html } from '@polymer/lit-element/'
+import { LitElement, html } from 'lit-element'
 
 import datatablesCss from 'datatables.net-dt/css/jquery.dataTables.min.css'
 import $ from 'jquery'

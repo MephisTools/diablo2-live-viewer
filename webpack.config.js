@@ -57,20 +57,6 @@ const commonConfig = merge([
     module: {
       rules: [
         {
-          test: /\.js$/,
-          use: [
-            {
-              loader: 'babel-loader',
-              options: {
-                babelrc: true,
-                extends: join(__dirname, '/.babelrc'),
-                cacheDirectory: true,
-                envName: ENV
-              }
-            }
-          ]
-        },
-        {
           test: /\.css$/,
           use: [
             'to-string-loader',

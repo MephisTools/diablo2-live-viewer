@@ -1,6 +1,6 @@
 /* globals customElements, WebSocket */
 
-import { LitElement, html } from '@polymer/lit-element/'
+import { LitElement, html } from 'lit-element'
 import './diablo2-map.js'
 import './packets-live-viewer'
 import page from 'page'
