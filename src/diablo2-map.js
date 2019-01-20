@@ -217,7 +217,30 @@ class Diablo2Map extends LitElement {
     this.objectLayer = L.layerGroup()
     this.warpLayer = L.layerGroup()
 
+    function random (seed) {
+      const x = Math.sin(seed) * 10000
+      return x - Math.floor(x)
+    }
+
+    const CanvasLayer = L.GridLayer.extend({
+      createTile: function (coords) {
+        // create a <canvas> element for drawing
+        const tile = L.DomUtil.create('canvas', 'leaflet-tile')
+        // setup tile width and height according to the options
+        const size = this.getTileSize()
+        tile.width = size.x
+        tile.height = size.y
+        // get a canvas context and draw something on it using coords.x, coords.y and coords.z
+        const ctx = tile.getContext('2d')
+        ctx.fillStyle = random(coords.x * 100000 + coords.y) > 0.5 ? '#AAAAAA' : '#FFFFFF'
+        ctx.fillRect(0, 0, size.x, size.y)
+        // return the tile so it can be rendered on screen
+        return tile
+      }
+    })
+
     const baseMaps = {
+      'grid': new CanvasLayer({ tileSize: 32, minZoom: -3 })
     }
 
     const overlayMaps = {
@@ -231,6 +254,7 @@ class Diablo2Map extends LitElement {
     this.map = L.map(mapElement, {
       crs: L.CRS.Simple,
       minZoom: -3,
+      maxZoom: 3,
       layers: Object.values(baseMaps).concat(Object.values(overlayMaps))
     })
     L.control.layers(baseMaps, overlayMaps).addTo(this.map)
