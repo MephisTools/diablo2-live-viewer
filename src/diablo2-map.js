@@ -1,7 +1,7 @@
 /* globals customElements */
 
-import monsterNamesRaw from './monster_names.txt'
-import objectsRaw from './objects.txt'
+import monsterNamesRaw from 'diablo2-data/data/pod_1.13d/monster_names.txt'
+import objectsRaw from 'diablo2-data/data/pod_1.13d/objects.txt'
 import { LitElement, html } from '@polymer/lit-element/'
 import L from 'leaflet'
 import css from 'leaflet/dist/leaflet.css'
