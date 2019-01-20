@@ -103,13 +103,13 @@ class Diablo2Map extends LitElement {
     ({ x, y } = transformCoords({ x, y }))
     const pos = xy(x, y)
     const name = (unitCode !== undefined ? (monsterNames[unitCode] !== '' ? monsterNames[unitCode] : ('NPC ' + unitCode)) : 'NPC')
-    if (this.entities[unitId] === undefined) {
-      this.entities[unitId] = Diablo2Map.addMarker(this.npcLayer, pos, 'green', name + ' ' + unitId, false, fallenIcon)
+    if (this.npcs[unitId] === undefined) {
+      this.npcs[unitId] = Diablo2Map.addMarker(this.npcLayer, pos, 'green', name + ' ' + unitId, false, fallenIcon)
     } else {
-      this.entities[unitId].setLatLng(pos)
+      this.npcs[unitId].setLatLng(pos)
       if (unitCode !== undefined) {
-        this.npcLayer.removeLayer(this.entities[unitId])
-        this.entities[unitId] = Diablo2Map.addMarker(this.npcLayer, pos, 'green', name + ' ' + unitId, false, fallenIcon)
+        this.npcLayer.removeLayer(this.npcs[unitId])
+        this.npcs[unitId] = Diablo2Map.addMarker(this.npcLayer, pos, 'green', name + ' ' + unitId, false, fallenIcon)
       }
     }
     if (!this.positionned) {
@@ -121,10 +121,10 @@ class Diablo2Map extends LitElement {
   displayPlayerMove (x, y, unitId) {
     ({ x, y } = transformCoords({ x, y }))
     const pos = xy(x, y)
-    if (this.entities[unitId] === undefined) {
-      this.entities[unitId] = Diablo2Map.addMarker(this.playerLayer, pos, 'blue', 'player ' + unitId, false, barbarianIcon)
+    if (this.players[unitId] === undefined) {
+      this.players[unitId] = Diablo2Map.addMarker(this.playerLayer, pos, 'blue', 'player ' + unitId, false, barbarianIcon)
     } else {
-      this.entities[unitId].setLatLng(pos)
+      this.players[unitId].setLatLng(pos)
     }
 
     if (!this.positionned) {
@@ -137,10 +137,10 @@ class Diablo2Map extends LitElement {
     ({ x, y } = transformCoords({ x, y }))
     const unitId = 99999
     const pos = xy(x, y)
-    if (this.entities[unitId] === undefined) {
-      this.entities[unitId] = Diablo2Map.addMarker(this.playerLayer, pos, 'red', 'myself', false, sorceressIcon)
+    if (this.players[unitId] === undefined) {
+      this.players[unitId] = Diablo2Map.addMarker(this.playerLayer, pos, 'red', 'myself', false, sorceressIcon)
     } else {
-      this.entities[unitId].setLatLng(pos)
+      this.players[unitId].setLatLng(pos)
     }
     this.map.panTo(pos)
     this.positionned = true
@@ -270,7 +270,8 @@ class Diablo2Map extends LitElement {
   }
 
   displayMap () {
-    this.entities = {}
+    this.npcs = {}
+    this.players = {}
     this.warps = {}
     this.items = {}
     this.objects = {}
