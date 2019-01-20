@@ -18,7 +18,7 @@
     "leaflet": "^1.4.0",
     "leaflet-search": "^2.9.8",
     "leaflet.awesome-markers": "^2.0.5",
-    "lit-html": "^0.14.0",
+    "lit-html": "^1.0.0-rc.2",
     "page": "^1.11.3",
     "promise-polyfill": "^8.0.0",
     "whatwg-fetch": "^2.0.4"
