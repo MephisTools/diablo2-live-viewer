@@ -14,8 +14,8 @@ class Diablo2LiveViewer extends LitElement {
 
   connect () {
     this.ws = new WebSocket('ws://localhost:8080')
-    this.ws.addEventListener('close', (err) => {
-      console.log('close', err)
+    this.ws.addEventListener('close', () => {
+      console.log('reconnecting...')
       setTimeout(() => {
         this.connect()
       }, 1000)
