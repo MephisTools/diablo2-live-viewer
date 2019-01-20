@@ -209,10 +209,12 @@ class Diablo2Map extends LitElement {
         if (unitId === 1) { this.displayWalkVerify(x, y) } else { this.displayPlayerMove(x, y, unitId) }
       }
 
+      /*
       if (name === 'D2GS_WALKVERIFY') {
         let { x, y } = params
         this.displayWalkVerify(x, y)
       }
+      */
 
       if (name === 'D2GS_RUNTOLOCATION' || name === 'D2GS_WALKTOLOCATION') {
         let { xCoordinate: x, yCoordinate: y } = params
