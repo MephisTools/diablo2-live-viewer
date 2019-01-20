@@ -13,6 +13,7 @@ import torch from './assets/torch.png'
 import fallen from './assets/fallen.png'
 import waypoint from './assets/waypoint.png'
 import sorceress from './assets/sorceress.png'
+import barbarian from './assets/barbarian.png'
 
 const torchIcon = L.icon({
   iconUrl: torch,
@@ -32,6 +33,11 @@ const waypointIcon = L.icon({
 const sorceressIcon = L.icon({
   iconUrl: sorceress,
   iconSize: [60, 60]
+})
+
+const barbarianIcon = L.icon({
+  iconUrl: barbarian,
+  iconSize: [30, 30]
 })
 
 function loadCsv (txt) {
@@ -116,7 +122,7 @@ class Diablo2Map extends LitElement {
     ({ x, y } = transformCoords({ x, y }))
     const pos = xy(x, y)
     if (this.entities[unitId] === undefined) {
-      this.entities[unitId] = Diablo2Map.addMarker(this.playerLayer, pos, 'blue', 'player ' + unitId)
+      this.entities[unitId] = Diablo2Map.addMarker(this.playerLayer, pos, 'blue', 'player ' + unitId, false, barbarianIcon)
     } else {
       this.entities[unitId].setLatLng(pos)
     }
