@@ -32,15 +32,25 @@ class PacketsLiveViewer extends LitElement {
   }
 
   displayPacketsTable () {
+    this.listenToPackets()
+    if (this.fake) {
+      setInterval(() => {
+        this.packetsTable.row.add([new Date().toLocaleTimeString(), 'lol1', 'lol2', 'lol3']).draw('full-hold')
+      }, 1000)
+    }
+  }
+
+  listenToPackets () {
     this.ws.addEventListener('message', message => {
       const { protocol, name, params } = JSON.parse(message.data)
       this.packetsTable.row.add([new Date().toLocaleTimeString(), protocol, name, JSON.stringify(params)]).draw('full-hold')
       console.log(protocol, name, JSON.stringify(params))
     })
-    if (this.fake) {
-      setInterval(() => {
-        this.packetsTable.row.add([new Date().toLocaleTimeString(), 'lol1', 'lol2', 'lol3']).draw('full-hold')
-      }, 1000)
+  }
+
+  updated (props) {
+    if (props.get('ws') !== undefined) {
+      this.listenToPackets()
     }
   }
 

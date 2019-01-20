@@ -8,8 +8,18 @@ import page from 'page'
 class Diablo2LiveViewer extends LitElement {
   constructor () {
     super()
-    this.ws = new WebSocket('ws://localhost:8080')
     this.page = 'index'
+    this.connect()
+  }
+
+  connect () {
+    this.ws = new WebSocket('ws://localhost:8080')
+    this.ws.addEventListener('close', (err) => {
+      console.log('close', err)
+      setTimeout(() => {
+        this.connect()
+      }, 1000)
+    })
   }
 
   static get properties () {

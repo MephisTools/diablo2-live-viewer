@@ -305,6 +305,12 @@ class Diablo2Map extends LitElement {
     this.listenToPackets()
   }
 
+  updated (props) {
+    if (props.get('ws') !== undefined) {
+      this.listenToPackets()
+    }
+  }
+
   render () {
     return html`
     <style>
