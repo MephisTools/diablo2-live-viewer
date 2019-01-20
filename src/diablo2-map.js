@@ -204,19 +204,7 @@ class Diablo2Map extends LitElement {
     })
   }
 
-  displayMap () {
-    this.entities = {}
-    this.warps = {}
-    this.items = {}
-    this.objects = {}
-
-    const mapElement = this.shadowRoot.querySelector('#map')
-    this.playerLayer = L.layerGroup()
-    this.npcLayer = L.layerGroup()
-    this.itemLayer = L.layerGroup()
-    this.objectLayer = L.layerGroup()
-    this.warpLayer = L.layerGroup()
-
+  createGrid () {
     function random (seed) {
       const x = Math.sin(seed) * 10000
       return x - Math.floor(x)
@@ -238,9 +226,24 @@ class Diablo2Map extends LitElement {
         return tile
       }
     })
+    return new CanvasLayer({ tileSize: 32, minZoom: -3 })
+  }
+
+  displayMap () {
+    this.entities = {}
+    this.warps = {}
+    this.items = {}
+    this.objects = {}
+
+    const mapElement = this.shadowRoot.querySelector('#map')
+    this.playerLayer = L.layerGroup()
+    this.npcLayer = L.layerGroup()
+    this.itemLayer = L.layerGroup()
+    this.objectLayer = L.layerGroup()
+    this.warpLayer = L.layerGroup()
 
     const baseMaps = {
-      'grid': new CanvasLayer({ tileSize: 32, minZoom: -3 })
+      'grid': this.createGrid()
     }
 
     const overlayMaps = {
