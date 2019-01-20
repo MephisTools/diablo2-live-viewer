@@ -39,7 +39,7 @@ L.Icon.Default.mergeOptions({
 const monsterNames = monsterNamesRaw.split('\n')
 
 function transformCoords ({ x, y }) {
-  return { x: x - 4400, y: -y + 4700 }
+  return { x: x, y: -y }
 }
 
 const yx = L.latLng
@@ -216,6 +216,7 @@ class Diablo2Map extends LitElement {
     this.itemLayer = L.layerGroup()
     this.objectLayer = L.layerGroup()
     this.warpLayer = L.layerGroup()
+
     const baseMaps = {
     }
 
@@ -230,11 +231,11 @@ class Diablo2Map extends LitElement {
     this.map = L.map(mapElement, {
       crs: L.CRS.Simple,
       minZoom: -3,
-      layers: Object.values(overlayMaps)
+      layers: Object.values(baseMaps).concat(Object.values(overlayMaps))
     })
     L.control.layers(baseMaps, overlayMaps).addTo(this.map)
 
-    this.map.setZoom(2)
+    this.map.setView([100, 100], 2)
     this.positionned = false
 
     const searchLayer = L.layerGroup(Object.values(overlayMaps))
