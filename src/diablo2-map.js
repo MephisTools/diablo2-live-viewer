@@ -144,7 +144,7 @@ class Diablo2Map extends LitElement {
     ({ x, y } = transformCoords({ x, y }))
     const pos = xy(x, y)
     if (this.warps[unitId] === undefined) {
-      this.warps[unitId] = Diablo2Map.addMarker(this.warpLayer, pos, 'orange', 'warp ' + unitId)
+      this.warps[unitId] = Diablo2Map.addMarker(this.warpLayer, pos, 'orange', 'warp ' + unitId, false, waypointIcon)
     }
   }
 
