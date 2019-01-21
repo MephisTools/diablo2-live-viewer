@@ -242,7 +242,7 @@ class Diablo2Map extends LitElement {
       */
 
       if (name === 'D2GS_RUNTOLOCATION' || name === 'D2GS_WALKTOLOCATION') {
-        let { xCoordinate: x, yCoordinate: y } = params
+        let { x, y } = params
         this.displayWalkVerify(x, y)
       }
 
@@ -257,7 +257,7 @@ class Diablo2Map extends LitElement {
       }
 
       if (name === 'D2GS_WORLDOBJECT') {
-        let { xCoordinate: x, yCoordinate: y, objectId, objectUniqueCode } = params
+        let { x, y, objectId, objectUniqueCode } = params
         this.displayObject(x, y, objectId, objectUniqueCode)
       }
     })
