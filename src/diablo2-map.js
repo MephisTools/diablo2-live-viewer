@@ -14,6 +14,7 @@ import fallen from './assets/fallen.png'
 import waypoint from './assets/waypoint.png'
 import sorceress from './assets/sorceress.png'
 import barbarian from './assets/barbarian.png'
+import wall from './assets/wall.png'
 
 const torchIcon = L.icon({
   iconUrl: torch,
@@ -37,6 +38,11 @@ const sorceressIcon = L.icon({
 
 const barbarianIcon = L.icon({
   iconUrl: barbarian,
+  iconSize: [30, 30]
+})
+
+const wallIcon = L.icon({
+  iconUrl: wall,
   iconSize: [30, 30]
 })
 
@@ -205,6 +211,12 @@ class Diablo2Map extends LitElement {
     }
   }
 
+  displayWall (x, y) {
+    ({ x, y } = transformCoords({ x, y }))
+    const pos = xy(x, y)
+    this.walls.push(Diablo2Map.addMarker(this.wallLayer, pos, 'cadetblue', 'wall', false, wallIcon))
+  }
+
   listenToPackets () {
     this.ws.addEventListener('message', message => {
       const { name, params } = JSON.parse(message.data)
@@ -260,6 +272,11 @@ class Diablo2Map extends LitElement {
         let { x, y, objectId, objectUniqueCode } = params
         this.displayObject(x, y, objectId, objectUniqueCode)
       }
+
+      if (name === 'obstacle') {
+        let { x, y } = params
+        this.displayWall(x, y)
+      }
     })
   }
 
@@ -294,6 +311,7 @@ class Diablo2Map extends LitElement {
     this.warps = {}
     this.items = {}
     this.objects = {}
+    this.walls = []
 
     const mapElement = this.shadowRoot.querySelector('#map')
     this.playerLayer = L.layerGroup()
@@ -301,6 +319,7 @@ class Diablo2Map extends LitElement {
     this.itemLayer = L.layerGroup()
     this.objectLayer = L.layerGroup()
     this.warpLayer = L.layerGroup()
+    this.wallLayer = L.layerGroup()
 
     const baseMaps = {
       'grid': this.createGrid()
@@ -311,7 +330,8 @@ class Diablo2Map extends LitElement {
       'npc': this.npcLayer,
       'item': this.itemLayer,
       'object': this.objectLayer,
-      'warp': this.warpLayer
+      'warp': this.warpLayer,
+      'wall': this.wallLayer
     }
 
     this.map = L.map(mapElement, {
