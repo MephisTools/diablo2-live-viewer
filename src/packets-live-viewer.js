@@ -42,7 +42,11 @@ class PacketsLiveViewer extends LitElement {
 
   listenToPackets () {
     this.ws.addEventListener('message', message => {
-      const { protocol, name, params } = JSON.parse(message.data)
+      const data = JSON.parse(message.data)
+      if (data.protocol === 'event') {
+        return
+      }
+      const { protocol, name, params } = data
       this.packetsTable.row.add([new Date().toLocaleTimeString(), protocol, name, JSON.stringify(params)]).draw('full-hold')
       console.log(protocol, name, JSON.stringify(params))
     })
