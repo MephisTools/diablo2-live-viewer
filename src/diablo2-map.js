@@ -336,7 +336,7 @@ class Diablo2Map extends LitElement {
 
     this.map = L.map(mapElement, {
       crs: L.CRS.Simple,
-      minZoom: -3,
+      minZoom: -6,
       maxZoom: 3,
       layers: Object.values(baseMaps).concat(Object.values(overlayMaps))
     })
