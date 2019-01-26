@@ -15,6 +15,7 @@ import waypoint from './assets/waypoint.png'
 import sorceress from './assets/sorceress.png'
 import barbarian from './assets/barbarian.png'
 import wall from './assets/wall.png'
+import ground from './assets/ground.png'
 
 const torchIcon = L.icon({
   iconUrl: torch,
@@ -43,7 +44,12 @@ const barbarianIcon = L.icon({
 
 const wallIcon = L.icon({
   iconUrl: wall,
-  iconSize: [30, 30]
+  iconSize: [15, 15]
+})
+
+const groundIcon = L.icon({
+  iconUrl: ground,
+  iconSize: [15, 15]
 })
 
 function loadCsv (txt) {
@@ -211,10 +217,18 @@ class Diablo2Map extends LitElement {
     }
   }
 
-  displayWall (x, y) {
+  displayWall (x, y, isWall) {
     ({ x, y } = transformCoords({ x, y }))
     const pos = xy(x, y)
-    this.walls.push(Diablo2Map.addMarker(this.wallLayer, pos, 'cadetblue', 'wall', false, wallIcon))
+    this.walls.push(Diablo2Map.addMarker(this.wallLayer, pos, 'cadetblue', isWall ? 'wall' : 'ground', false, isWall ? wallIcon : groundIcon))
+  }
+
+  displayPath (path) {
+    if (this.path !== null) {
+      this.path.remove()
+    }
+    const transformedPath = path.map(transformCoords).map(({ x, y }) => ([y, x]))
+    this.path = L.polyline(transformedPath, { color: 'red' }).addTo(this.map)
   }
 
   listenToPackets () {
@@ -237,7 +251,7 @@ class Diablo2Map extends LitElement {
       }
 
       if (name === 'D2GS_CREATECLIENTPLAYER') {
-        let { nPosX: x, nPosY: y, guid: unitId, szname } = params
+        let { x, y, guid: unitId, szname } = params
         this.displayPlayerMove(x, y, unitId, Buffer.from(szname).toString().replace(/\0.*$/g, ''))
       }
 
@@ -273,19 +287,23 @@ class Diablo2Map extends LitElement {
         this.displayObject(x, y, objectId, objectUniqueCode)
       }
 
-      if (name === 'obstacle') {
-        let { x, y } = params
-        this.displayWall(x, y)
+      if (name === 'mapPoint') {
+        let { x, y, isWall } = params
+        this.displayWall(x, y, isWall)
+      }
+
+      if (name === 'path') {
+        this.displayPath(params)
+      }
+
+      if (name === 'noPath' && this.path !== null) {
+        this.path.remove()
+        this.path = null
       }
     })
   }
 
   createGrid () {
-    function random (seed) {
-      const x = Math.sin(seed) * 10000
-      return x - Math.floor(x)
-    }
-
     const CanvasLayer = L.GridLayer.extend({
       createTile: function (coords) {
         // create a <canvas> element for drawing
@@ -296,13 +314,16 @@ class Diablo2Map extends LitElement {
         tile.height = size.y
         // get a canvas context and draw something on it using coords.x, coords.y and coords.z
         const ctx = tile.getContext('2d')
-        ctx.fillStyle = random(coords.x * 100000 + coords.y) > 0.5 ? '#AAAAAA' : '#FFFFFF'
+        ctx.fillStyle = '#FFFFFF'
         ctx.fillRect(0, 0, size.x, size.y)
         // return the tile so it can be rendered on screen
         return tile
       }
     })
-    return new CanvasLayer({ tileSize: 32, minZoom: -3 })
+
+    const grid = new CanvasLayer({ tileSize: 32, minZoom: -3 })
+
+    return grid
   }
 
   displayMap () {
@@ -312,6 +333,7 @@ class Diablo2Map extends LitElement {
     this.items = {}
     this.objects = {}
     this.walls = []
+    this.path = null
 
     const mapElement = this.shadowRoot.querySelector('#map')
     this.playerLayer = L.layerGroup()
