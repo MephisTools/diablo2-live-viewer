@@ -2,14 +2,13 @@
 
 import { LitElement, html } from 'lit-element'
 
-import datatablesCss from 'datatables.net-dt/css/jquery.dataTables.min.css'
-import $ from 'jquery'
-import 'datatables.net'
+import 'wct-datatables-net'
 
 class PacketsLiveViewer extends LitElement {
   static get properties () {
     return {
-      ws: { type: Object }
+      ws: { type: Object },
+      table: { type: Object }
     }
   }
 
@@ -20,15 +19,6 @@ class PacketsLiveViewer extends LitElement {
 
   firstUpdated () {
     this.displayPacketsTable()
-    this.packetsTable = $(this.shadowRoot.querySelector('#myTable')).DataTable({
-      'order': [[ 0, 'desc' ]],
-      'columns': [
-        null,
-        null,
-        null,
-        { width: '70%' }
-      ]
-    })
   }
 
   displayPacketsTable () {
@@ -59,19 +49,16 @@ class PacketsLiveViewer extends LitElement {
   }
 
   render () {
-    return html`<style>${datatablesCss}</style>
-  <table id="myTable">
-      <thead>
-        <tr>
-            <th>Time</th>
-            <th>Protocol</th>
-            <th>Name</th>
-            <th>Params</th>
-        </tr>
-    </thead>
-    <tbody>
-    </tbody>
-</table>
+    return html`
+    <data-table .options=${{
+    'order': [[ 0, 'desc' ]],
+    'columns': [
+      { title: 'Time' },
+      { title: 'Protocol' },
+      { title: 'Name' },
+      { title: 'Params', width: '70%' }
+    ]
+  }} @table-created=${e => { this.packetsTable = e.detail.table }}></data-table>
   `
   }
 }

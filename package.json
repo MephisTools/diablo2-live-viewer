@@ -9,19 +9,14 @@
     "url": "https://github.com/MephisTools/diablo2-live-viewer"
   },
   "dependencies": {
-    "lit-element": "^2.0.0-rc.3",
-    "@webcomponents/webcomponentsjs": "^2.2.1",
-    "datatables.net": "^1.10.19",
-    "datatables.net-dt": "^1.10.19",
     "diablo2-data": "^1.0.0",
-    "express": "^4.16.3",
     "leaflet": "^1.4.0",
     "leaflet-search": "^2.9.8",
     "leaflet.awesome-markers": "^2.0.5",
-    "lit-html": "^1.0.0-rc.2",
+    "lit-element": "^2.0.1",
+    "lit-html": "^1.0.0",
     "page": "^1.11.3",
-    "promise-polyfill": "^8.0.0",
-    "whatwg-fetch": "^2.0.4"
+    "wct-datatables-net": "^1.1.0"
   },
   "devDependencies": {
     "clean-webpack-plugin": "^0.1.19",
