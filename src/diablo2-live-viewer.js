@@ -3,6 +3,7 @@
 import { LitElement, html } from 'lit-element'
 import './diablo2-map.js'
 import './packets-live-viewer'
+import './inventory-live-viewer'
 import page from 'page'
 
 class Diablo2LiveViewer extends LitElement {
@@ -30,6 +31,7 @@ class Diablo2LiveViewer extends LitElement {
     page('/', () => { this.page = 'index' })
     page('/map', () => { this.page = 'map' })
     page('/packets', () => { this.page = 'packets' })
+    page('/inventory', () => { this.page = 'inventory' })
     page()
   }
 
@@ -40,11 +42,15 @@ class Diablo2LiveViewer extends LitElement {
         <a href="/map">Map</a>
         <br />
         <a href="/packets">Packets</a>
+        <br />
+        <a href="/inventory">Inventory</a>
         `
       case 'map':
         return html`<diablo2-map .ws=${this.ws}></diablo2-map>`
       case 'packets':
         return html`<packets-live-viewer .ws=${this.ws}></packets-live-viewer>`
+      case 'inventory':
+        return html`<inventory-live-viewer .ws=${this.ws}></inventory-live-viewer>`
     }
   }
 }

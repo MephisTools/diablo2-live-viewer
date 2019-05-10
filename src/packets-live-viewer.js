@@ -19,6 +19,12 @@ class PacketsLiveViewer extends LitElement {
 
   firstUpdated () {
     this.displayPacketsTable()
+    // document.querySelector('packets-live-viewer').setAttribute('', '')
+    // document.getElementById('output').innerHTML = document.querySelector('div span').innerHTML
+    this.shadowRoot.getElementById('send').onclick = () => {
+      console.log(`Sent packet ${this.shadowRoot.getElementById('packet').value}`)
+      this.ws.send(this.shadowRoot.getElementById('packet').value)
+    }
   }
 
   displayPacketsTable () {
@@ -59,6 +65,8 @@ class PacketsLiveViewer extends LitElement {
       { title: 'Params', width: '70%' }
     ]
   }} @table-created=${e => { this.packetsTable = e.detail.table }}></data-table>
+  Send packet: <input id="packet" type="text" placeholder="raw json packet"><br>
+  <input id="send" type="submit" value="Submit">
   `
   }
 }
