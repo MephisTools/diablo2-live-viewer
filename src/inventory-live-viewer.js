@@ -14,14 +14,40 @@ class InventoryLiveViewer extends LitElement {
       display: inline-block;
       margin:10px;
       background-color:grey;
+    }
+    
+    #popup {
+      display: none;
+      position: absolute;
+      left: 0px;
+      top: 0px;
+      border:1px solid;
+      background: #d9d9d9;
+      overflow-wrap: break-word;
+      width: 500px;
     }`
   }
 
   firstUpdated () {
   }
 
-  displayItemData (data) {
-    console.log(data)
+  displayItemData (e, data) {
+    let popup = this.shadowRoot.getElementById('popup')
+    popup.innerHTML = JSON.stringify(data)
+    popup.style.display = 'block'
+
+    window.addEventListener('mousemove', (e) => { this.followCursor(e) }, true)
+  }
+
+  followCursor (e) {
+    let popup = this.shadowRoot.getElementById('popup')
+    popup.style.top = e.clientY + 'px'
+    popup.style.left = e.clientX + 'px'
+  }
+
+  hideItemData () {
+    this.shadowRoot.getElementById('popup').style.display = 'none'
+    window.removeEventListener('mousemove', (e) => { this.followCursor(e) }, true)
   }
 
   listenToPackets () {
@@ -46,7 +72,8 @@ class InventoryLiveViewer extends LitElement {
                   let y = params['y'] + h
                   const e = this.shadowRoot.getElementById(`${params['container']}${x};${y}`)
                   e.src = 'assets/itemGrid.png'
-                  e.addEventListener('mouseover', () => { this.displayItemData(params) })
+                  e.addEventListener('mouseover', (event) => { this.displayItemData(event, params) })
+                  e.addEventListener('mouseout', () => { this.hideItemData() })
                 } catch (exception) {
                   console.log(`Failed ${JSON.stringify(params)}`)
                 }
@@ -56,7 +83,8 @@ class InventoryLiveViewer extends LitElement {
           case 8: // unequip TODO: handle case when removing belt (it drop potions into inventory non-equipped)
             const e = this.shadowRoot.getElementById(`e${params['x']};${params['y']}`)
             e.src = 'assets/itemGrid.png'
-            e.removeEventListener('mouseover', () => { this.displayItemData(params) })
+            e.removeEventListener('mouseover', (event) => { this.displayItemData(event, params) })
+            e.removeEventListener('mouseout', () => { this.hideItemData() })
             break
           case 4: // -> inventory non-equipped
           case 6: // whatever -> equipped
@@ -64,7 +92,8 @@ class InventoryLiveViewer extends LitElement {
             if (params['equipped'] === 1) {
               const e = this.shadowRoot.getElementById(`e${params['x']};${params['y']}`)
               e.src = 'assets/itemGrid_filled.png'
-              e.addEventListener('mouseover', () => { this.displayItemData(params) })
+              e.addEventListener('mouseover', (event) => { this.displayItemData(event, params) })
+              e.addEventListener('mouseout', () => { this.hideItemData() })
             } else {
               for (let w = 0; w < params['width']; w++) {
                 for (let h = 0; h < params['height']; h++) {
@@ -73,7 +102,8 @@ class InventoryLiveViewer extends LitElement {
                     let y = params['y'] + h
                     const e = this.shadowRoot.getElementById(`${params['container']}${x};${y}`)
                     e.src = 'assets/itemGrid_filled.png'
-                    e.removeEventListener('mouseover', () => { this.displayItemData(params) })
+                    e.removeEventListener('mouseover', (event) => { this.displayItemData(event, params) })
+                    e.removeEventListener('mouseout', () => { this.hideItemData() })
                   } catch (exception) {
                     console.log(`Failed ${JSON.stringify(params)}`)
                   }
@@ -116,6 +146,8 @@ class InventoryLiveViewer extends LitElement {
     */
 
     return html`
+    <p id="popup">some text here</div>
+
     <!-- TODO: use diablo images for inventory (make same interface than diablo) -->
     <div>
     <h1>Equipped</h1>
